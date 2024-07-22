@@ -1,6 +1,10 @@
-import './index.css'
 import {Component} from 'react'
+import {v4 as uuidV4} from 'uuid'
+
 import TodoItem from '../TodoItem'
+
+import './index.css'
+
 const initialTodosList = [
   {
     id: 1,
@@ -36,27 +40,70 @@ const initialTodosList = [
   },
 ]
 
-// Write your code here
-
 class SimpleTodos extends Component {
-  state = {todoUserList: initialTodosList}
-  deleteTodo = id => {
-    const {todoUserList} = this.state
-    const filteredTodoList = todoUserList.filter(eachTodo => eachTodo.id !== id)
-    this.setState({todoUserList: filteredTodoList})
+  state = {
+    todosList: initialTodosList,
+    titleInput: '',
   }
-  render() {
-    const {todoUserList} = this.state
+
+  renderTodoInputField = () => {
+    const {titleInput} = this.state
+
+    const onChangeHandler = event => {
+      this.setState({titleInput: event.target.value})
+    }
+
+    const onAddTodo = () => {
+      if (titleInput === '') return
+
+      this.setState(prevState => ({
+        todosList: [...prevState.todosList, {id: uuidV4(), title: titleInput}],
+        titleInput: '',
+      }))
+    }
+
     return (
-      <div className="bg-container">
-        <div className="card-container">
+      <div className="title-input-container">
+        <input value={titleInput} onChange={onChangeHandler} />
+        <button className="add-btn" type="button" onClick={onAddTodo}>
+          Add
+        </button>
+      </div>
+    )
+  }
+
+  deleteTodo = id => {
+    const {todosList} = this.state
+    const updatedTodosList = todosList.filter(eachTodo => eachTodo.id !== id)
+
+    this.setState({
+      todosList: updatedTodosList,
+    })
+  }
+
+  saveTodo = task => {
+    this.setState(prevState => ({
+      todosList: prevState.todosList.map(item =>
+        item.id === task.id ? task : item,
+      ),
+    }))
+  }
+
+  render() {
+    const {todosList} = this.state
+
+    return (
+      <div className="app-container">
+        <div className="simple-todos-container">
           <h1 className="heading">Simple Todos</h1>
-          <ul>
-            {todoUserList.map(eachTodo => (
+          {this.renderTodoInputField()}
+          <ul className="todos-list">
+            {todosList.map(eachTodo => (
               <TodoItem
-                todoDetails={eachTodo}
                 key={eachTodo.id}
+                todoDetails={eachTodo}
                 deleteTodo={this.deleteTodo}
+                saveTodo={this.saveTodo}
               />
             ))}
           </ul>
@@ -65,4 +112,5 @@ class SimpleTodos extends Component {
     )
   }
 }
+
 export default SimpleTodos

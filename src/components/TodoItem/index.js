@@ -1,25 +1,56 @@
-// Write your code here
+import {useState} from 'react'
+
 import './index.css'
+
 const TodoItem = props => {
-  const {todoDetails, deleteTodo} = props
+  const {todoDetails, deleteTodo, saveTodo} = props
   const {id, title} = todoDetails
-  const onDelete = () => {
+
+  const [isSaved, setIsSaved] = useState(true)
+  const [newTitle, setNewTitle] = useState(title)
+
+  const onDeleteTodo = () => {
     deleteTodo(id)
   }
+
+  const onSaveTodo = () => {
+    setIsSaved(true)
+    saveTodo({id, title: newTitle})
+  }
+
+  const onEditClick = () => setIsSaved(false)
+
+  const onChangeHandler = event => setNewTitle(event.target.value)
+
   return (
-    <div>
-      <li className="todo-list">
-        <p className="todo-item">{title}</p>
+    <li className="todo-item">
+      {isSaved ? (
+        <p className="title">{title}</p>
+      ) : (
+        <input className="title" value={newTitle} onChange={onChangeHandler} />
+      )}
+      {isSaved ? (
         <button
-          className="button"
           type="button"
-          onClick={onDelete}
-          data-testid="delete"
+          className="delete-btn edit-btn"
+          onClick={onEditClick}
         >
-          Delete
+          Edit
         </button>
-      </li>
-    </div>
+      ) : (
+        <button
+          type="button"
+          className="delete-btn save-btn"
+          onClick={onSaveTodo}
+        >
+          Save
+        </button>
+      )}
+      <button type="button" className="delete-btn" onClick={onDeleteTodo}>
+        Delete
+      </button>
+    </li>
   )
 }
+
 export default TodoItem
